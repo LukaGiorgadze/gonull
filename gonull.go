@@ -2,6 +2,7 @@ package gonull
 
 import (
 	"database/sql/driver"
+	"encoding/json"
 	"errors"
 )
 
@@ -47,4 +48,20 @@ func convertToType[T any](value interface{}) (T, error) {
 		var zero T
 		return zero, errors.New("unsupported type conversion")
 	}
+}
+
+func (n *Nullable[T]) UnmarshalJSON(data []byte) error {
+	if string(data) == "null" {
+		n.IsSet = false
+		return nil
+	}
+
+	var value T
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+
+	n.Val = value
+	n.IsSet = true
+	return nil
 }
