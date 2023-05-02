@@ -1,4 +1,4 @@
-name: modsec
+name: gosec
 
 env:
   GO_VERSION: "1.20"
@@ -9,7 +9,7 @@ permissions:
   contents: read
 
 jobs:
-  modsec:
+  gosec:
     runs-on: ubuntu-latest
     env:
       GO111MODULE: on
