@@ -1,0 +1,22 @@
+name: gosec
+
+env:
+  GO_VERSION: "1.20"
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  gosec:
+    runs-on: ubuntu-latest
+    env:
+      GO111MODULE: on
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Run Gosec Security Scanner
+        uses: securego/gosec@master
+        with:
+          args: ./...

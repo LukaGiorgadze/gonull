@@ -15,24 +15,25 @@ var (
 )
 
 // Nullable is a generic struct that holds a nullable value of any type T.
-// It keeps track of the value (Val) and a flag (IsSet) indicating whether the value has been set.
+// It keeps track of the value (Val) and a flag (IsValid) indicating whether the value has been set.
 // This allows for better handling of nullable values, ensuring proper value management and serialization.
 type Nullable[T any] struct {
 	Val     T
 	IsValid bool
 }
 
-// NewNullable creates a new Nullable with the given value and sets IsSet to true.
+// NewNullable creates a new Nullable with the given value and sets IsValid to true.
 // This is useful when you want to create a Nullable with an initial value, explicitly marking it as set.
 func NewNullable[T any](value T) Nullable[T] {
 	return Nullable[T]{Val: value, IsValid: true}
 }
 
 // Scan implements the sql.Scanner interface for Nullable, allowing it to be used as a nullable field in database operations.
-// It is responsible for properly setting the IsSet flag and converting the scanned value to the target type T.
+// It is responsible for properly setting the IsValid flag and converting the scanned value to the target type T.
 // This enables seamless integration with database/sql when working with nullable values.
 func (n *Nullable[T]) Scan(value interface{}) error {
 	if value == nil {
+		n.Val = zeroValue[T]()
 		n.IsValid = false
 		return nil
 	}
@@ -54,20 +55,8 @@ func (n Nullable[T]) Value() (driver.Value, error) {
 	return n.Val, nil
 }
 
-// convertToType is a helper function that attempts to convert the given value to type T.
-// This function is used by Scan to properly handle value conversion, ensuring that Nullable values are always of the correct type.
-func convertToType[T any](value interface{}) (T, error) {
-	switch v := value.(type) {
-	case T:
-		return v, nil
-	default:
-		var zero T
-		return zero, ErrUnsupportedConversion
-	}
-}
-
 // UnmarshalJSON implements the json.Unmarshaler interface for Nullable, allowing it to be used as a nullable field in JSON operations.
-// This method ensures proper unmarshalling of JSON data into the Nullable value, correctly setting the IsSet flag based on the JSON data.
+// This method ensures proper unmarshalling of JSON data into the Nullable value, correctly setting the IsValid flag based on the JSON data.
 func (n *Nullable[T]) UnmarshalJSON(data []byte) error {
 	if string(data) == "null" {
 		n.IsValid = false
@@ -92,4 +81,23 @@ func (n Nullable[T]) MarshalJSON() ([]byte, error) {
 	}
 
 	return json.Marshal(n.Val)
+}
+
+// zeroValue is a helper function that returns the zero value for the generic type T.
+// It is used to set the zero value for the Val field of the Nullable struct when the value is nil.
+func zeroValue[T any]() T {
+	var zero T
+	return zero
+}
+
+// convertToType is a helper function that attempts to convert the given value to type T.
+// This function is used by Scan to properly handle value conversion, ensuring that Nullable values are always of the correct type.
+func convertToType[T any](value interface{}) (T, error) {
+	switch v := value.(type) {
+	case T:
+		return v, nil
+	default:
+		var zero T
+		return zero, ErrUnsupportedConversion
+	}
 }
