@@ -1,16 +1,18 @@
 # Go Nullable with Generics
 
+[![PkgGoDev](https://pkg.go.dev/badge/lomsa-dev/gonull)](https://pkg.go.dev/lomsa-dev/gonull)
+
 ## Go package simplifies nullable fields handling with Go Generics.
 
 Package gonull provides a generic `Nullable` type for handling nullable values in a convenient way.
 This is useful when working with databases and JSON, where nullable values are common.
 Unlike other nullable libraries, gonull leverages Go's generics feature, enabling it to work seamlessly with any data type, making it more versatile and efficient.
 
-## Advantages
+## Why gonull
+
 - Use of Go's generics allows for a single implementation that works with any data type.
 - Seamless integration with `database/sql` and JSON marshalling/unmarshalling.
 - Reduces boilerplate code and improves code readability.
-
 
 ## Usage
 
@@ -20,8 +22,8 @@ go get https://github.com/lomsa-dev/gonull
 
 ```go
 type User struct {
-	Name     null.Nullable[string]
-	Age      null.Nullable[int]
+	Name     gonull.Nullable[string]
+	Age      gonull.Nullable[int]
 }
 
 func main() {
