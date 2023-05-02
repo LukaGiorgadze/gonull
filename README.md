@@ -1,6 +1,6 @@
 # Go Nullable with Generics
 
-[![PkgGoDev](https://pkg.go.dev/badge/lomsa-dev/gonull)](https://pkg.go.dev/lomsa-dev/gonull)
+[![PkgGoDev](https://pkg.go.dev/badge/lomsa-dev/gonull)](https://pkg.go.dev/lomsa-dev/gonull) ![mod-verify](https://github.com/lomsa-dev/gonull/workflows/mod-verify/badge.svg) ![golangci-lint](https://github.com/lomsa-dev/gonull/workflows/golangci-lint/badge.svg)
 
 ## Go package simplifies nullable fields handling with Go Generics.
 
