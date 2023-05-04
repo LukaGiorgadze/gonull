@@ -3,7 +3,6 @@
 package gonull
 
 import (
-	"database/sql"
 	"database/sql/driver"
 	"encoding/json"
 	"errors"
@@ -51,7 +50,7 @@ func (n *Nullable[T]) Scan(value interface{}) error {
 // This method ensures that the correct value is returned for serialization, handling unset Nullable values by returning nil.
 func (n Nullable[T]) Value() (driver.Value, error) {
 	if !n.Valid {
-		return sql.NullString{}, nil
+		return nil, nil
 	}
 	return driver.Value(n.Val), nil
 }
