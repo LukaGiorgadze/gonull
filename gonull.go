@@ -53,7 +53,7 @@ func (n Nullable[T]) Value() (driver.Value, error) {
 	if !n.Valid {
 		return sql.NullString{}, nil
 	}
-	return n.Val, nil
+	return driver.Value(n.Val), nil
 }
 
 // UnmarshalJSON implements the json.Unmarshaler interface for Nullable, allowing it to be used as a nullable field in JSON operations.
