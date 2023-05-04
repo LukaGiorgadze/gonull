@@ -15,33 +15,33 @@ var (
 )
 
 // Nullable is a generic struct that holds a nullable value of any type T.
-// It keeps track of the value (Val) and a flag (IsValid) indicating whether the value has been set.
+// It keeps track of the value (Val) and a flag (Valid) indicating whether the value has been set.
 // This allows for better handling of nullable values, ensuring proper value management and serialization.
 type Nullable[T any] struct {
-	Val     T
-	IsValid bool
+	Val   T
+	Valid bool
 }
 
-// NewNullable creates a new Nullable with the given value and sets IsValid to true.
+// NewNullable creates a new Nullable with the given value and sets Valid to true.
 // This is useful when you want to create a Nullable with an initial value, explicitly marking it as set.
 func NewNullable[T any](value T) Nullable[T] {
-	return Nullable[T]{Val: value, IsValid: true}
+	return Nullable[T]{Val: value, Valid: true}
 }
 
 // Scan implements the sql.Scanner interface for Nullable, allowing it to be used as a nullable field in database operations.
-// It is responsible for properly setting the IsValid flag and converting the scanned value to the target type T.
+// It is responsible for properly setting the Valid flag and converting the scanned value to the target type T.
 // This enables seamless integration with database/sql when working with nullable values.
 func (n *Nullable[T]) Scan(value interface{}) error {
 	if value == nil {
 		n.Val = zeroValue[T]()
-		n.IsValid = false
+		n.Valid = false
 		return nil
 	}
 
 	var err error
 	n.Val, err = convertToType[T](value)
 	if err == nil {
-		n.IsValid = true
+		n.Valid = true
 	}
 	return err
 }
@@ -49,17 +49,17 @@ func (n *Nullable[T]) Scan(value interface{}) error {
 // Value implements the driver.Valuer interface for Nullable, enabling it to be used as a nullable field in database operations.
 // This method ensures that the correct value is returned for serialization, handling unset Nullable values by returning nil.
 func (n Nullable[T]) Value() (driver.Value, error) {
-	if !n.IsValid {
+	if !n.Valid {
 		return nil, nil
 	}
-	return n.Val, nil
+	return driver.Value(n.Val), nil
 }
 
 // UnmarshalJSON implements the json.Unmarshaler interface for Nullable, allowing it to be used as a nullable field in JSON operations.
-// This method ensures proper unmarshalling of JSON data into the Nullable value, correctly setting the IsValid flag based on the JSON data.
+// This method ensures proper unmarshalling of JSON data into the Nullable value, correctly setting the Valid flag based on the JSON data.
 func (n *Nullable[T]) UnmarshalJSON(data []byte) error {
 	if string(data) == "null" {
-		n.IsValid = false
+		n.Valid = false
 		return nil
 	}
 
@@ -69,14 +69,14 @@ func (n *Nullable[T]) UnmarshalJSON(data []byte) error {
 	}
 
 	n.Val = value
-	n.IsValid = true
+	n.Valid = true
 	return nil
 }
 
 // MarshalJSON implements the json.Marshaler interface for Nullable, enabling it to be used as a nullable field in JSON operations.
 // This method ensures proper marshalling of Nullable values into JSON data, representing unset values as null in the serialized output.
 func (n Nullable[T]) MarshalJSON() ([]byte, error) {
-	if !n.IsValid {
+	if !n.Valid {
 		return []byte("null"), nil
 	}
 
