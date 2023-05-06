@@ -6,7 +6,6 @@ import (
 	"database/sql/driver"
 	"encoding/json"
 	"errors"
-	"reflect"
 )
 
 var (
@@ -53,7 +52,7 @@ func (n Nullable[T]) Value() (driver.Value, error) {
 	if !n.Valid {
 		return nil, nil
 	}
-	return driver.Value(n.Val), nil
+	return n.Val, nil
 }
 
 // UnmarshalJSON implements the json.Unmarshaler interface for Nullable, allowing it to be used as a nullable field in JSON operations.
@@ -97,13 +96,13 @@ func convertToType[T any](value interface{}) (T, error) {
 	switch v := value.(type) {
 	case T:
 		return v, nil
-	case int64:
-		switch t := reflect.Zero(reflect.TypeOf((*T)(nil)).Elem()).Interface().(type) {
-		case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64:
-			if reflect.TypeOf(t).ConvertibleTo(reflect.TypeOf((*T)(nil)).Elem()) {
-				return reflect.ValueOf(value).Convert(reflect.TypeOf((*T)(nil)).Elem()).Interface().(T), nil
-			}
-		}
+		// case int64:
+		// 	switch t := reflect.Zero(reflect.TypeOf((*T)(nil)).Elem()).Interface().(type) {
+		// 	case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64:
+		// 		if reflect.TypeOf(t).ConvertibleTo(reflect.TypeOf((*T)(nil)).Elem()) {
+		// 			return reflect.ValueOf(value).Convert(reflect.TypeOf((*T)(nil)).Elem()).Interface().(T), nil
+		// 		}
+		// 	}
 	}
 	var zero T
 	return zero, ErrUnsupportedConversion
