@@ -98,6 +98,10 @@ func convertToType[T any](value interface{}) (T, error) {
 	case T:
 		return v, nil
 	case int64:
+		// This case handles the situation when the input value is of type int64.
+		// It attempts to convert the int64 value to the target numeric type T if possible.
+		// If the conversion is successful, it returns the converted value of type T and a nil error.
+		// If the conversion is not possible, the function will continue to the next case (return an error).
 		switch t := reflect.Zero(reflect.TypeOf((*T)(nil)).Elem()).Interface().(type) {
 		case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64:
 			if reflect.TypeOf(t).ConvertibleTo(reflect.TypeOf((*T)(nil)).Elem()) {
