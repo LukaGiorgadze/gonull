@@ -123,6 +123,16 @@ func TestNullableUnmarshalJSON(t *testing.T) {
 	}
 }
 
+func TestNullableUnmarshalJSON_Error(t *testing.T) {
+	jsonData := []byte(`"invalid_number"`)
+
+	var nullable Nullable[int]
+	err := nullable.UnmarshalJSON(jsonData)
+
+	assert.Error(t, err)
+	assert.False(t, nullable.Valid)
+}
+
 func TestNullableMarshalJSON(t *testing.T) {
 	type testCase struct {
 		name         string
@@ -148,6 +158,80 @@ func TestNullableMarshalJSON(t *testing.T) {
 			jsonData, err := tc.nullable.MarshalJSON()
 			assert.NoError(t, err)
 			assert.Equal(t, tc.expectedJSON, jsonData)
+		})
+	}
+}
+
+func TestNullableScan_UnconvertibleFromInt64(t *testing.T) {
+	value := int64(123456789012345)
+
+	var n Nullable[string]
+	err := n.Scan(value)
+
+	assert.Error(t, err)
+	assert.False(t, n.Valid)
+}
+
+func TestConvertToTypeFromInt64(t *testing.T) {
+	tests := []struct {
+		name          string
+		targetType    string
+		value         int64
+		expectedError error
+	}{
+		{name: "Convert int64 to int", targetType: "int", value: int64(1), expectedError: nil},
+		{name: "Convert int64 to int8", targetType: "int8", value: int64(2), expectedError: nil},
+		{name: "Convert int64 to int16", targetType: "int16", value: int64(3), expectedError: nil},
+		{name: "Convert int64 to int32", targetType: "int32", value: int64(4), expectedError: nil},
+		{name: "Convert int64 to uint", targetType: "uint", value: int64(5), expectedError: nil},
+		{name: "Convert int64 to uint8", targetType: "uint8", value: int64(6), expectedError: nil},
+		{name: "Convert int64 to uint16", targetType: "uint16", value: int64(7), expectedError: nil},
+		{name: "Convert int64 to uint32", targetType: "uint32", value: int64(8), expectedError: nil},
+		// Add more tests as necessary
+		{name: "Convert int64 to string (expected to fail)", targetType: "string", value: int64(9), expectedError: ErrUnsupportedConversion},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var err error
+			switch tt.targetType {
+			case "int":
+				n := Nullable[int]{}
+				err = n.Scan(tt.value)
+			case "int8":
+				n := Nullable[int8]{}
+				err = n.Scan(tt.value)
+			case "int16":
+				n := Nullable[int16]{}
+				err = n.Scan(tt.value)
+			case "int32":
+				n := Nullable[int32]{}
+				err = n.Scan(tt.value)
+			case "uint":
+				n := Nullable[uint]{}
+				err = n.Scan(tt.value)
+			case "uint8":
+				n := Nullable[uint8]{}
+				err = n.Scan(tt.value)
+			case "uint16":
+				n := Nullable[uint16]{}
+				err = n.Scan(tt.value)
+			case "uint32":
+				n := Nullable[uint32]{}
+				err = n.Scan(tt.value)
+			case "string":
+				n := Nullable[string]{}
+				err = n.Scan(tt.value)
+			default:
+				t.Fatalf("Unsupported type: %s", tt.targetType)
+				return
+			}
+
+			if tt.expectedError == nil {
+				assert.NoError(t, err)
+			} else {
+				assert.Equal(t, tt.expectedError, err)
+			}
 		})
 	}
 }
