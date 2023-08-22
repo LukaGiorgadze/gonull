@@ -1,18 +1,24 @@
-package gonull
+package gonull_test
 
 import (
 	"database/sql/driver"
 	"testing"
 
+	"github.com/lomsa-dev/gonull"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestNewNullable(t *testing.T) {
 	value := "test"
-	n := NewNullable(value)
+	n := gonull.NewNullable(value)
 
 	assert.True(t, n.Valid)
 	assert.Equal(t, value, n.Val)
+}
+
+type NullableInt struct {
+	Int  int
+	Null bool
 }
 
 func TestNullableScan(t *testing.T) {
@@ -41,7 +47,7 @@ func TestNullableScan(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			var n Nullable[string]
+			var n gonull.Nullable[string]
 			err := n.Scan(tt.value)
 
 			if tt.wantErr {
@@ -60,19 +66,19 @@ func TestNullableScan(t *testing.T) {
 func TestNullableValue(t *testing.T) {
 	tests := []struct {
 		name      string
-		nullable  Nullable[string]
+		nullable  gonull.Nullable[string]
 		wantValue driver.Value
 		wantErr   error
 	}{
 		{
 			name:      "valid value",
-			nullable:  NewNullable("test"),
+			nullable:  gonull.NewNullable("test"),
 			wantValue: "test",
 			wantErr:   nil,
 		},
 		{
 			name:      "unset value",
-			nullable:  Nullable[string]{Valid: false},
+			nullable:  gonull.Nullable[string]{Valid: false},
 			wantValue: nil,
 			wantErr:   nil,
 		},
@@ -113,7 +119,7 @@ func TestNullableUnmarshalJSON(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			var nullable Nullable[int]
+			var nullable gonull.Nullable[int]
 
 			err := nullable.UnmarshalJSON(tc.jsonData)
 			assert.NoError(t, err)
@@ -126,7 +132,7 @@ func TestNullableUnmarshalJSON(t *testing.T) {
 func TestNullableUnmarshalJSON_Error(t *testing.T) {
 	jsonData := []byte(`"invalid_number"`)
 
-	var nullable Nullable[int]
+	var nullable gonull.Nullable[int]
 	err := nullable.UnmarshalJSON(jsonData)
 
 	assert.Error(t, err)
@@ -136,19 +142,19 @@ func TestNullableUnmarshalJSON_Error(t *testing.T) {
 func TestNullableMarshalJSON(t *testing.T) {
 	type testCase struct {
 		name         string
-		nullable     Nullable[int]
+		nullable     gonull.Nullable[int]
 		expectedJSON []byte
 	}
 
 	testCases := []testCase{
 		{
 			name:         "ValuePresent",
-			nullable:     NewNullable[int](123),
+			nullable:     gonull.NewNullable[int](123),
 			expectedJSON: []byte(`123`),
 		},
 		{
 			name:         "ValueNull",
-			nullable:     Nullable[int]{Val: 0, Valid: false},
+			nullable:     gonull.Nullable[int]{Val: 0, Valid: false},
 			expectedJSON: []byte(`null`),
 		},
 	}
@@ -165,7 +171,7 @@ func TestNullableMarshalJSON(t *testing.T) {
 func TestNullableScan_UnconvertibleFromInt64(t *testing.T) {
 	value := int64(123456789012345)
 
-	var n Nullable[string]
+	var n gonull.Nullable[string]
 	err := n.Scan(value)
 
 	assert.Error(t, err)
@@ -188,7 +194,7 @@ func TestConvertToTypeFromInt64(t *testing.T) {
 		{name: "Convert int64 to uint16", targetType: "uint16", value: int64(7), expectedError: nil},
 		{name: "Convert int64 to uint32", targetType: "uint32", value: int64(8), expectedError: nil},
 		// Add more tests as necessary
-		{name: "Convert int64 to string (expected to fail)", targetType: "string", value: int64(9), expectedError: ErrUnsupportedConversion},
+		{name: "Convert int64 to string (expected to fail)", targetType: "string", value: int64(9), expectedError: gonull.ErrUnsupportedConversion},
 	}
 
 	for _, tt := range tests {
@@ -196,31 +202,31 @@ func TestConvertToTypeFromInt64(t *testing.T) {
 			var err error
 			switch tt.targetType {
 			case "int":
-				n := Nullable[int]{}
+				n := gonull.Nullable[int]{}
 				err = n.Scan(tt.value)
 			case "int8":
-				n := Nullable[int8]{}
+				n := gonull.Nullable[int8]{}
 				err = n.Scan(tt.value)
 			case "int16":
-				n := Nullable[int16]{}
+				n := gonull.Nullable[int16]{}
 				err = n.Scan(tt.value)
 			case "int32":
-				n := Nullable[int32]{}
+				n := gonull.Nullable[int32]{}
 				err = n.Scan(tt.value)
 			case "uint":
-				n := Nullable[uint]{}
+				n := gonull.Nullable[uint]{}
 				err = n.Scan(tt.value)
 			case "uint8":
-				n := Nullable[uint8]{}
+				n := gonull.Nullable[uint8]{}
 				err = n.Scan(tt.value)
 			case "uint16":
-				n := Nullable[uint16]{}
+				n := gonull.Nullable[uint16]{}
 				err = n.Scan(tt.value)
 			case "uint32":
-				n := Nullable[uint32]{}
+				n := gonull.Nullable[uint32]{}
 				err = n.Scan(tt.value)
 			case "string":
-				n := Nullable[string]{}
+				n := gonull.Nullable[string]{}
 				err = n.Scan(tt.value)
 			default:
 				t.Fatalf("Unsupported type: %s", tt.targetType)
