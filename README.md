@@ -17,7 +17,7 @@ Unlike other nullable libraries, gonull leverages Go's generics feature, enablin
 ## Usage
 
 ```bash
-go get https://github.com/lomsa-dev/gonull
+go get github.com/lomsa-dev/gonull
 ```
 
 ### Example
