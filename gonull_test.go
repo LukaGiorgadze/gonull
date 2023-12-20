@@ -2,6 +2,7 @@ package gonull_test
 
 import (
 	"database/sql/driver"
+	"encoding/json"
 	"testing"
 
 	"github.com/lomsa-dev/gonull"
@@ -240,4 +241,31 @@ func TestConvertToTypeFromInt64(t *testing.T) {
 			}
 		})
 	}
+}
+
+type testStruct struct {
+	Foo gonull.Nullable[*string] `json:"foo"`
+}
+
+func TestPresent(t *testing.T) {
+	var nullable1 testStruct
+	var nullable2 testStruct
+	var nullable3 testStruct
+
+	err := json.Unmarshal([]byte(`{"foo":"f"}`), &nullable1)
+	assert.NoError(t, err)
+	assert.Equal(t, true, nullable1.Foo.Valid)
+	assert.Equal(t, true, nullable1.Foo.Present)
+
+	err = json.Unmarshal([]byte(`{}`), &nullable2)
+	assert.NoError(t, err)
+	assert.Equal(t, false, nullable2.Foo.Valid)
+	assert.Equal(t, false, nullable3.Foo.Present)
+	assert.Nil(t, nullable2.Foo.Val)
+
+	err = json.Unmarshal([]byte(`{"foo": null}`), &nullable3)
+	assert.NoError(t, err)
+	assert.Equal(t, false, nullable3.Foo.Valid)
+	assert.Equal(t, true, nullable3.Foo.Present)
+	assert.Nil(t, nullable3.Foo.Val)
 }

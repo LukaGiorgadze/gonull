@@ -16,23 +16,27 @@ var (
 )
 
 // Nullable is a generic struct that holds a nullable value of any type T.
-// It keeps track of the value (Val) and a flag (Valid) indicating whether the value has been set.
-// This allows for better handling of nullable values, ensuring proper value management and serialization.
+// It keeps track of the value (Val), a flag (Valid) indicating whether the value has been set and a flag (Present)
+// indicating if the value is in the struct.
+// This allows for better handling of nullable and undefined values, ensuring proper value management and serialization.
 type Nullable[T any] struct {
-	Val   T
-	Valid bool
+	Val     T
+	Valid   bool
+	Present bool
 }
 
 // NewNullable creates a new Nullable with the given value and sets Valid to true.
 // This is useful when you want to create a Nullable with an initial value, explicitly marking it as set.
 func NewNullable[T any](value T) Nullable[T] {
-	return Nullable[T]{Val: value, Valid: true}
+	return Nullable[T]{Val: value, Valid: true, Present: true}
 }
 
 // Scan implements the sql.Scanner interface for Nullable, allowing it to be used as a nullable field in database operations.
 // It is responsible for properly setting the Valid flag and converting the scanned value to the target type T.
 // This enables seamless integration with database/sql when working with nullable values.
 func (n *Nullable[T]) Scan(value interface{}) error {
+	n.Present = true
+
 	if value == nil {
 		n.Val = zeroValue[T]()
 		n.Valid = false
@@ -59,6 +63,8 @@ func (n Nullable[T]) Value() (driver.Value, error) {
 // UnmarshalJSON implements the json.Unmarshaler interface for Nullable, allowing it to be used as a nullable field in JSON operations.
 // This method ensures proper unmarshalling of JSON data into the Nullable value, correctly setting the Valid flag based on the JSON data.
 func (n *Nullable[T]) UnmarshalJSON(data []byte) error {
+	n.Present = true
+
 	if string(data) == "null" {
 		n.Valid = false
 		return nil
