@@ -1,6 +1,6 @@
 # Go Nullable with Generics
 
-[![PkgGoDev](https://pkg.go.dev/badge/github.com/lomsa-dev/gonull)](https://pkg.go.dev/github.com/lomsa-dev/gonull) ![mod-verify](https://github.com/lomsa-dev/gonull/workflows/mod-verify/badge.svg) ![golangci-lint](https://github.com/lomsa-dev/gonull/workflows/golangci-lint/badge.svg) ![staticcheck](https://github.com/lomsa-dev/gonull/workflows/staticcheck/badge.svg) ![gosec](https://github.com/lomsa-dev/gonull/workflows/gosec/badge.svg) [![codecov](https://codecov.io/gh/lomsa-dev/gonull/branch/main/graph/badge.svg?token=76089e7b-f137-4459-8eae-4b48007bd0d6)](https://codecov.io/gh/lomsa-dev/gonull)
+[![PkgGoDev](https://pkg.go.dev/badge/github.com/LukaGiorgadze/gonull)](https://pkg.go.dev/github.com/LukaGiorgadze/gonull) ![mod-verify](https://github.com/LukaGiorgadze/gonull/workflows/mod-verify/badge.svg) ![golangci-lint](https://github.com/LukaGiorgadze/gonull/workflows/golangci-lint/badge.svg) ![staticcheck](https://github.com/LukaGiorgadze/gonull/workflows/staticcheck/badge.svg) ![gosec](https://github.com/LukaGiorgadze/gonull/workflows/gosec/badge.svg) [![codecov](https://codecov.io/gh/LukaGiorgadze/gonull/branch/main/graph/badge.svg?token=76089e7b-f137-4459-8eae-4b48007bd0d6)](https://codecov.io/gh/LukaGiorgadze/gonull)
 
 ## Go package simplifies nullable fields handling with Go Generics.
 
@@ -17,7 +17,7 @@ Unlike other nullable libraries, gonull leverages Go's generics feature, enablin
 ## Usage
 
 ```bash
-go get github.com/lomsa-dev/gonull
+go get github.com/LukaGiorgadze/gonull
 ```
 
 ### Example
@@ -26,37 +26,37 @@ go get github.com/lomsa-dev/gonull
 package main
 
 import (
-	"encoding/json"
-	"fmt"
+    "encoding/json"
+    "fmt"
 
-	"github.com/lomsa-dev/gonull"
+    "github.com/LukaGiorgadze/gonull"
 )
 
 type MyCustomInt int
 type MyCustomFloat32 float32
 
 type Person struct {
-	Name    string
-	Age     gonull.Nullable[MyCustomInt]
-	Address gonull.Nullable[string]
-	Height  gonull.Nullable[MyCustomFloat32]
+    Name    string
+    Age     gonull.Nullable[MyCustomInt]
+    Address gonull.Nullable[string]
+    Height  gonull.Nullable[MyCustomFloat32]
 }
 
 func main() {
-	jsonData := []byte(`{"Name":"Alice","Age":15,"Address":null,"Height":null}`)
+    jsonData := []byte(`{"Name":"Alice","Age":15,"Address":null,"Height":null}`)
 
-	var person Person
-	err := json.Unmarshal(jsonData, &person)
-	if err != nil {
-		panic(err)
-	}
-	fmt.Printf("Unmarshalled Person: %+v\n", person)
+    var person Person
+    err := json.Unmarshal(jsonData, &person)
+    if err != nil {
+        panic(err)
+    }
+    fmt.Printf("Unmarshalled Person: %+v\n", person)
 
-	marshalledData, err := json.Marshal(person)
-	if err != nil {
-		panic(err)
-	}
-	fmt.Printf("Marshalled JSON: %s\n", string(marshalledData))
+    marshalledData, err := json.Marshal(person)
+    if err != nil {
+        panic(err)
+    }
+    fmt.Printf("Marshalled JSON: %s\n", string(marshalledData))
 }
 
 
@@ -66,26 +66,26 @@ func main() {
 
 ```go
 type User struct {
-	Name     gonull.Nullable[string]
-	Age      gonull.Nullable[int]
+    Name     gonull.Nullable[string]
+    Age      gonull.Nullable[int]
 }
 
 func main() {
     // ...
-	rows, err := db.Query("SELECT id, name, age FROM users")
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer rows.Close()
+    rows, err := db.Query("SELECT id, name, age FROM users")
+    if err != nil {
+        log.Fatal(err)
+    }
+    defer rows.Close()
 
-	for rows.Next() {
-		var user User
-		err := rows.Scan( &user.Name, &user.Age)
-		if err != nil {
-			log.Fatal(err)
-		}
-		fmt.Printf("ID: %d, Name: %v, Age: %v\n", user.Name.Val, user.Age.Val)
-	}
+    for rows.Next() {
+        var user User
+        err := rows.Scan(&user.Name, &user.Age)
+        if err != nil {
+            log.Fatal(err)
+        }
+        fmt.Printf("ID: %d, Name: %v, Age: %v\n", user.Name.Val, user.Age.Val)
+    }
     // ...
 }
 ```

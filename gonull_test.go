@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"testing"
 
-	"github.com/lomsa-dev/gonull"
+	"github.com/LukaGiorgadze/gonull"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -27,22 +27,26 @@ func TestNullableScan(t *testing.T) {
 		name    string
 		value   interface{}
 		Valid   bool
+		Present bool
 		wantErr bool
 	}{
 		{
-			name:  "nil value",
-			value: nil,
-			Valid: false,
+			name:    "nil value",
+			value:   nil,
+			Valid:   false,
+			Present: true,
 		},
 		{
-			name:  "string value",
-			value: "test",
-			Valid: true,
+			name:    "string value",
+			value:   "test",
+			Valid:   true,
+			Present: true,
 		},
 		{
 			name:    "unsupported type",
 			value:   []byte{1, 2, 3},
 			wantErr: true,
+			Present: true,
 		},
 	}
 
@@ -56,6 +60,7 @@ func TestNullableScan(t *testing.T) {
 			} else {
 				assert.NoError(t, err)
 				assert.Equal(t, tt.Valid, n.Valid)
+				assert.Equal(t, tt.Present, n.Present)
 				if tt.Valid {
 					assert.Equal(t, tt.value, n.Val)
 				}
@@ -97,24 +102,27 @@ func TestNullableValue(t *testing.T) {
 
 func TestNullableUnmarshalJSON(t *testing.T) {
 	type testCase struct {
-		name          string
-		jsonData      []byte
-		expectedVal   int
-		expectedValid bool
+		name            string
+		jsonData        []byte
+		expectedVal     any
+		expectedValid   bool
+		expectedPresent bool
 	}
 
 	testCases := []testCase{
 		{
-			name:          "ValuePresent",
-			jsonData:      []byte(`123`),
-			expectedVal:   123,
-			expectedValid: true,
+			name:            "ValuePresent",
+			jsonData:        []byte(`123`),
+			expectedVal:     123,
+			expectedValid:   true,
+			expectedPresent: true,
 		},
 		{
-			name:          "ValueNull",
-			jsonData:      []byte(`null`),
-			expectedVal:   0,
-			expectedValid: false,
+			name:            "ValueNull",
+			jsonData:        []byte(`null`),
+			expectedVal:     0,
+			expectedValid:   false,
+			expectedPresent: true,
 		},
 	}
 
@@ -123,9 +131,11 @@ func TestNullableUnmarshalJSON(t *testing.T) {
 			var nullable gonull.Nullable[int]
 
 			err := nullable.UnmarshalJSON(tc.jsonData)
+
 			assert.NoError(t, err)
 			assert.Equal(t, tc.expectedVal, nullable.Val)
 			assert.Equal(t, tc.expectedValid, nullable.Valid)
+			assert.Equal(t, tc.expectedPresent, nullable.Present)
 		})
 	}
 }
