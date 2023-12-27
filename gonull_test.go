@@ -253,6 +253,37 @@ func TestConvertToTypeFromInt64(t *testing.T) {
 	}
 }
 
+func TestNullableScanWithCustomEnum(t *testing.T) {
+	type TestEnum float32
+
+	const (
+		TestEnumA TestEnum = iota
+		TestEnumB
+	)
+
+	type TestModel struct {
+		ID    int
+		Field gonull.Nullable[TestEnum]
+	}
+
+	// Simulate the scenario where the SQL driver returns an int64
+	// This is common as database integer types are usually scanned as int64 in Go
+	//
+	// sqlReturnedValue (int64(0)) is convertible to float32.
+	// The converted value 0 (as float32) matches TestEnumA, which is also 0 when converted to float32.
+	sqlReturnedValue := int64(0)
+
+	model := TestModel{ID: 1, Field: gonull.NewNullable(TestEnumA)}
+
+	err := model.Field.Scan(sqlReturnedValue)
+	if err != nil {
+		assert.Error(t, err, "Scan failed with unsupported type conversion")
+	} else {
+		assert.Equal(t, TestEnumA, model.Field.Val, "Scanned value does not match expected enum value")
+	}
+
+}
+
 type testStruct struct {
 	Foo gonull.Nullable[*string] `json:"foo"`
 }
