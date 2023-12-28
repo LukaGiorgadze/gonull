@@ -24,7 +24,7 @@ type NullableInt struct {
 func TestNullableScan(t *testing.T) {
 	tests := []struct {
 		name    string
-		value   interface{}
+		value   any
 		Valid   bool
 		Present bool
 		wantErr bool
@@ -283,7 +283,7 @@ func TestNullableScanWithCustomEnum(t *testing.T) {
 func TestConvertToTypeWithNilValue(t *testing.T) {
 	tests := []struct {
 		name     string
-		expected interface{}
+		expected any
 	}{
 		{
 			name:     "Nil to int",
@@ -345,7 +345,7 @@ func TestConvertToTypeWithNilValue(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			var result interface{}
+			var result any
 			var err error
 
 			switch tc.expected.(type) {
