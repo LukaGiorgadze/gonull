@@ -105,19 +105,20 @@ func convertToType[T any](value interface{}) (T, error) {
 		return zero, nil
 	}
 
-	if reflect.TypeOf(value) == reflect.TypeOf(zero) {
+	valueType := reflect.TypeOf(value)
+	targetType := reflect.TypeOf(zero)
+	if valueType == targetType {
 		return value.(T), nil
 	}
 
+	isNumeric := func(kind reflect.Kind) bool {
+		return kind >= reflect.Int && kind <= reflect.Float64
+	}
+
 	// Check if the value is a numeric type and if T is also a numeric type.
-	valueType := reflect.TypeOf(value)
-	targetType := reflect.TypeOf(zero)
-	if valueType.Kind() >= reflect.Int && valueType.Kind() <= reflect.Float64 &&
-		targetType.Kind() >= reflect.Int && targetType.Kind() <= reflect.Float64 {
-		if valueType.ConvertibleTo(targetType) {
-			convertedValue := reflect.ValueOf(value).Convert(targetType)
-			return convertedValue.Interface().(T), nil
-		}
+	if isNumeric(valueType.Kind()) && isNumeric(targetType.Kind()) {
+		convertedValue := reflect.ValueOf(value).Convert(targetType)
+		return convertedValue.Interface().(T), nil
 	}
 
 	return zero, ErrUnsupportedConversion
