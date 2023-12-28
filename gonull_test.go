@@ -276,11 +276,8 @@ func TestNullableScanWithCustomEnum(t *testing.T) {
 	model := TestModel{ID: 1, Field: gonull.NewNullable(TestEnumA)}
 
 	err := model.Field.Scan(sqlReturnedValue)
-	if err != nil {
-		assert.Error(t, err, "Scan failed with unsupported type conversion")
-	} else {
-		assert.Equal(t, TestEnumA, model.Field.Val, "Scanned value does not match expected enum value")
-	}
+	assert.NoError(t, err, "Scan failed with unsupported type conversion")
+	assert.Equal(t, TestEnumA, model.Field.Val, "Scanned value does not match expected enum value")
 
 }
 
