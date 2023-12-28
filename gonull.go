@@ -45,9 +45,7 @@ func (n *Nullable[T]) Scan(value any) error {
 
 	var err error
 	n.Val, err = convertToType[T](value)
-	if err == nil {
-		n.Valid = true
-	}
+	n.Valid = err == nil
 	return err
 }
 
