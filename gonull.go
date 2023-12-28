@@ -99,7 +99,6 @@ func zeroValue[T any]() T {
 
 // convertToType is a helper function that attempts to convert the given value to type T.
 // This function is used by Scan to properly handle value conversion, ensuring that Nullable values are always of the correct type.
-// ErrUnsupportedConversion is returned when a conversion cannot be made to the generic type T.
 func convertToType[T any](value interface{}) (T, error) {
 	var zero T
 	if value == nil {
