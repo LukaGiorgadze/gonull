@@ -15,6 +15,7 @@ type Person struct {
 	Age     gonull.Nullable[MyCustomInt]     `json:"age"`
 	Address gonull.Nullable[string]          `json:"address"`
 	Height  gonull.Nullable[MyCustomFloat32] `json:"height"`
+	HasPet  gonull.Nullable[bool]            `json:"has_pet"`
 }
 
 func Example() {
@@ -34,6 +35,9 @@ func Example() {
 	// Same for the height.
 	fmt.Printf("Person.Height is valid: %t, present: %t\n", person.Height.Valid, person.Height.Present)
 
+	// HasPet is not present.
+	fmt.Printf("Person.HasPet is valid: %t, present: %t\n", person.HasPet.Valid, person.HasPet.Present)
+
 	marshalledData, err := json.Marshal(person)
 	if err != nil {
 		panic(err)
@@ -45,5 +49,6 @@ func Example() {
 	// Person.Age is valid: true, present: true
 	// Person.Address is valid: false, present: true
 	// Person.Height is valid: false, present: true
-	// {"name":"Alice","age":15,"address":null,"height":null}
+	// Person.HasPet is valid: false, present: false
+	// {"name":"Alice","age":15,"address":null,"height":null,"has_pet":null}
 }
