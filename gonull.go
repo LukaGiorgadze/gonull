@@ -34,7 +34,7 @@ func NewNullable[T any](value T) Nullable[T] {
 // Scan implements the sql.Scanner interface for Nullable, allowing it to be used as a nullable field in database operations.
 // It is responsible for properly setting the Valid flag and converting the scanned value to the target type T.
 // This enables seamless integration with database/sql when working with nullable values.
-func (n *Nullable[T]) Scan(value interface{}) error {
+func (n *Nullable[T]) Scan(value any) error {
 	n.Present = true
 
 	if value == nil {
@@ -45,9 +45,7 @@ func (n *Nullable[T]) Scan(value interface{}) error {
 
 	var err error
 	n.Val, err = convertToType[T](value)
-	if err == nil {
-		n.Valid = true
-	}
+	n.Valid = err == nil
 	return err
 }
 
@@ -99,25 +97,26 @@ func zeroValue[T any]() T {
 
 // convertToType is a helper function that attempts to convert the given value to type T.
 // This function is used by Scan to properly handle value conversion, ensuring that Nullable values are always of the correct type.
-func convertToType[T any](value interface{}) (T, error) {
+func convertToType[T any](value any) (T, error) {
 	var zero T
 	if value == nil {
 		return zero, nil
 	}
 
-	if reflect.TypeOf(value) == reflect.TypeOf(zero) {
+	valueType := reflect.TypeOf(value)
+	targetType := reflect.TypeOf(zero)
+	if valueType == targetType {
 		return value.(T), nil
 	}
 
+	isNumeric := func(kind reflect.Kind) bool {
+		return kind >= reflect.Int && kind <= reflect.Float64
+	}
+
 	// Check if the value is a numeric type and if T is also a numeric type.
-	valueType := reflect.TypeOf(value)
-	targetType := reflect.TypeOf(zero)
-	if valueType.Kind() >= reflect.Int && valueType.Kind() <= reflect.Float64 &&
-		targetType.Kind() >= reflect.Int && targetType.Kind() <= reflect.Float64 {
-		if valueType.ConvertibleTo(targetType) {
-			convertedValue := reflect.ValueOf(value).Convert(targetType)
-			return convertedValue.Interface().(T), nil
-		}
+	if isNumeric(valueType.Kind()) && isNumeric(targetType.Kind()) {
+		convertedValue := reflect.ValueOf(value).Convert(targetType)
+		return convertedValue.Interface().(T), nil
 	}
 
 	return zero, ErrUnsupportedConversion
