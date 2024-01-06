@@ -3,6 +3,7 @@ package gonull
 import (
 	"database/sql/driver"
 	"encoding/json"
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -410,4 +411,75 @@ func TestPresent(t *testing.T) {
 	assert.Equal(t, false, nullable3.Foo.Valid)
 	assert.Equal(t, true, nullable3.Foo.Present)
 	assert.Nil(t, nullable3.Foo.Val)
+}
+
+type testValuerScannerStruct struct {
+	b []byte
+}
+
+//goland:noinspection GoMixedReceiverTypes
+func (t testValuerScannerStruct) Value() (driver.Value, error) {
+	return t.b, nil
+}
+
+//goland:noinspection GoMixedReceiverTypes
+func (t *testValuerScannerStruct) Scan(src any) error {
+	if src == nil {
+		return nil
+	}
+	switch v := src.(type) {
+	case string:
+		t.b = []byte(v)
+		return nil
+	case []byte:
+		t.b = v
+		return nil
+	default:
+		return fmt.Errorf("unsupported type: %t", v)
+	}
+}
+
+func TestValuerAndScanner(t *testing.T) {
+	valueNullable1 := Nullable[testValuerScannerStruct]{
+		Val:     testValuerScannerStruct{b: []byte("test output string")},
+		Valid:   true,
+		Present: true,
+	}
+	valueNullable2 := Nullable[testValuerScannerStruct]{
+		Valid:   false,
+		Present: true,
+	}
+
+	valueResult1, valueErr1 := valueNullable1.Value()
+	assert.NoError(t, valueErr1)
+	assert.Equal(t, []byte("test output string"), valueResult1)
+
+	valueResult2, valueErr2 := valueNullable2.Value()
+	assert.NoError(t, valueErr2)
+	assert.Equal(t, nil, valueResult2)
+
+	scannerData1 := []byte("test input string")
+
+	var scannerNullable1 Nullable[testValuerScannerStruct]
+	var scannerNullable2 Nullable[testValuerScannerStruct]
+
+	scannerErr1 := scannerNullable1.Scan(scannerData1)
+	assert.NoError(t, scannerErr1)
+	assert.Equal(t, Nullable[testValuerScannerStruct]{
+		Present: true,
+		Valid:   true,
+		Val: testValuerScannerStruct{
+			b: []byte("test input string"),
+		},
+	}, scannerNullable1)
+
+	scannerErr2 := scannerNullable2.Scan(nil)
+	assert.NoError(t, scannerErr2)
+	assert.Equal(t, Nullable[testValuerScannerStruct]{
+		Present: true,
+		Valid:   false,
+		Val: testValuerScannerStruct{
+			b: []byte(nil),
+		},
+	}, scannerNullable2)
 }
