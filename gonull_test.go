@@ -3,6 +3,7 @@ package gonull
 import (
 	"database/sql/driver"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"testing"
 
@@ -417,15 +418,16 @@ type testValuerScannerStruct struct {
 	b []byte
 }
 
-//goland:noinspection GoMixedReceiverTypes
 func (t testValuerScannerStruct) Value() (driver.Value, error) {
 	return t.b, nil
 }
 
-//goland:noinspection GoMixedReceiverTypes
 func (t *testValuerScannerStruct) Scan(src any) error {
 	if src == nil {
 		return nil
+	}
+	if str, ok := src.(string); ok && str == "error" {
+		return errors.New("intentional error")
 	}
 	switch v := src.(type) {
 	case string:
@@ -435,7 +437,7 @@ func (t *testValuerScannerStruct) Scan(src any) error {
 		t.b = v
 		return nil
 	default:
-		return fmt.Errorf("unsupported type: %t", v)
+		return fmt.Errorf("unsupported type: %T", v)
 	}
 }
 
@@ -482,4 +484,14 @@ func TestValuerAndScanner(t *testing.T) {
 			b: []byte(nil),
 		},
 	}, scannerNullable2)
+
+	var scannerNullableUnsupported Nullable[testValuerScannerStruct]
+	scannerErrUnsupported := scannerNullableUnsupported.Scan(123)
+	assert.Error(t, scannerErrUnsupported)
+	assert.Contains(t, scannerErrUnsupported.Error(), "unsupported type")
+	assert.Equal(t, Nullable[testValuerScannerStruct]{
+		Present: true,
+		Valid:   false,
+		Val:     testValuerScannerStruct{},
+	}, scannerNullableUnsupported)
 }
