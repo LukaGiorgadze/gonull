@@ -3,6 +3,7 @@
 package gonull
 
 import (
+	"database/sql"
 	"database/sql/driver"
 	"encoding/json"
 	"errors"
@@ -43,6 +44,14 @@ func (n *Nullable[T]) Scan(value any) error {
 		return nil
 	}
 
+	if scanner, ok := interface{}(&n.Val).(sql.Scanner); ok {
+		if err := scanner.Scan(value); err != nil {
+			return err
+		}
+		n.Valid = true
+		return nil
+	}
+
 	var err error
 	n.Val, err = convertToType[T](value)
 	n.Valid = err == nil
@@ -54,6 +63,10 @@ func (n *Nullable[T]) Scan(value any) error {
 func (n Nullable[T]) Value() (driver.Value, error) {
 	if !n.Valid {
 		return nil, nil
+	}
+
+	if valuer, ok := interface{}(n.Val).(driver.Valuer); ok {
+		return valuer.Value()
 	}
 	return n.Val, nil
 }
