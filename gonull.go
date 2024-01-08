@@ -101,6 +101,15 @@ func (n Nullable[T]) MarshalJSON() ([]byte, error) {
 	return json.Marshal(n.Val)
 }
 
+// OrElse returns the underlying Val if valid otherwise returns the provided defaultVal
+func (n Nullable[T]) OrElse(defaultVal T) T {
+	if n.Valid {
+		return n.Val
+	} else {
+		return defaultVal
+	}
+}
+
 // zeroValue is a helper function that returns the zero value for the generic type T.
 // It is used to set the zero value for the Val field of the Nullable struct when the value is nil.
 func zeroValue[T any]() T {
