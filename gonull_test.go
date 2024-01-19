@@ -517,7 +517,7 @@ func TestConvertToDriverValue(t *testing.T) {
 		uint8Val         uint8        = 12
 		uint16Val        uint16       = 1234
 		uint32Val        uint32       = 12345
-		uint64Val        uint64       = 1 << 62 // Ensure it's within int64 range
+		uint64Val        uint64       = 1 << 62
 		float32Val       float32      = 12.34
 		float64Val       float64      = 123.456
 		boolVal          bool         = true
@@ -575,14 +575,11 @@ func TestConvertToDriverValue(t *testing.T) {
 }
 
 func TestNullableValue_Uint32(t *testing.T) {
-	// Create a Nullable with a uint32 value.
 	uint32Val := uint32(12345)
 	nullableUint32 := NewNullable(uint32Val)
 
-	// Call the Value method to get the converted value.
 	convertedValue, err := nullableUint32.Value()
 
-	// Check that there are no errors and the type is int64 (supported by driver.Value).
 	if err != nil {
 		t.Fatalf("Nullable[uint32].Value() returned an error: %v", err)
 	}
@@ -591,7 +588,6 @@ func TestNullableValue_Uint32(t *testing.T) {
 		t.Fatalf("Nullable[uint32].Value() returned a non-int64 type: %T", convertedValue)
 	}
 
-	// Optionally, check that the converted value matches the original.
 	if int64(uint32Val) != convertedValue.(int64) {
 		t.Errorf("Nullable[uint32].Value() returned %v, want %v", convertedValue, uint32Val)
 	}
