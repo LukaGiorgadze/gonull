@@ -7,6 +7,7 @@ import (
 	"database/sql/driver"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"reflect"
 )
 
@@ -68,7 +69,54 @@ func (n Nullable[T]) Value() (driver.Value, error) {
 	if valuer, ok := interface{}(n.Val).(driver.Valuer); ok {
 		return valuer.Value()
 	}
-	return n.Val, nil
+
+	return convertToDriverValue(n.Val)
+}
+
+func convertToDriverValue(v any) (driver.Value, error) {
+	if valuer, ok := v.(driver.Valuer); ok {
+		return valuer.Value()
+	}
+
+	rv := reflect.ValueOf(v)
+	switch rv.Kind() {
+	case reflect.Pointer:
+		if rv.IsNil() {
+			return nil, nil
+		}
+		return convertToDriverValue(rv.Elem().Interface())
+
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		return rv.Int(), nil
+
+	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32:
+		return int64(rv.Uint()), nil
+
+	case reflect.Uint64:
+		u64 := rv.Uint()
+		if u64 >= 1<<63 {
+			return nil, fmt.Errorf("uint64 values with high bit set are not supported")
+		}
+		return int64(u64), nil
+
+	case reflect.Float32, reflect.Float64:
+		return rv.Float(), nil
+
+	case reflect.Bool:
+		return rv.Bool(), nil
+
+	case reflect.Slice:
+		if rv.Type().Elem().Kind() == reflect.Uint8 {
+			return rv.Bytes(), nil
+		}
+		return nil, fmt.Errorf("unsupported slice type: %s", rv.Type().Elem().Kind())
+
+	case reflect.String:
+		return rv.String(), nil
+
+	default:
+		return nil, fmt.Errorf("unsupported type: %T", v)
+	}
 }
 
 // UnmarshalJSON implements the json.Unmarshaler interface for Nullable, allowing it to be used as a nullable field in JSON operations.
