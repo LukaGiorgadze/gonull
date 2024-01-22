@@ -497,6 +497,15 @@ func TestValuerAndScanner(t *testing.T) {
 	}, scannerNullableUnsupported)
 }
 
+func TestNullableOrElse(t *testing.T) {
+	value := "hello"
+	nonEmpty := NewNullable(value)
+	assert.Equal(t, value, nonEmpty.OrElse("world"))
+
+	var empty Nullable[string]
+	assert.Equal(t, "world", empty.OrElse("world"))
+}
+
 type customValuer struct {
 	value any
 	err   error
