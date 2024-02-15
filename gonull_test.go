@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"reflect"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -344,6 +345,10 @@ func TestConvertToTypeWithNilValue(t *testing.T) {
 			name:     "Nil to string",
 			expected: "",
 		},
+		{
+			name:     "Nil to time.Time",
+			expected: time.Time{},
+		},
 	}
 
 	for _, tc := range tests {
@@ -380,6 +385,8 @@ func TestConvertToTypeWithNilValue(t *testing.T) {
 				result, err = convertToType[bool](nil)
 			case string:
 				result, err = convertToType[string](nil)
+			case time.Time:
+				result, err = convertToType[time.Time](nil)
 			}
 
 			assert.NoError(t, err)
@@ -531,6 +538,7 @@ func TestConvertToDriverValue(t *testing.T) {
 		float64Val       float64      = 123.456
 		boolVal          bool         = true
 		stringVal        string       = "test"
+		timeVal          time.Time    = time.Date(2006, 1, 2, 15, 4, 5, 0, time.UTC)
 		byteSlice        []byte       = []byte("byte slice")
 		ptrToInt         *int         = &intVal
 		nilPtr           *int         = nil
@@ -560,6 +568,7 @@ func TestConvertToDriverValue(t *testing.T) {
 		{"Bool", boolVal, boolVal, false},
 		{"String", stringVal, stringVal, false},
 		{"ByteSlice", byteSlice, byteSlice, false},
+		{"Time", timeVal, timeVal, false},
 		{"PointerToInt", ptrToInt, int64(*ptrToInt), false},
 		{"NilPointer", nilPtr, nil, false},
 		{"UnsupportedType", struct{}{}, nil, true},

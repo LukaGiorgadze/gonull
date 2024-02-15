@@ -9,6 +9,7 @@ import (
 	"errors"
 	"fmt"
 	"reflect"
+	"time"
 )
 
 var (
@@ -113,6 +114,12 @@ func convertToDriverValue(v any) (driver.Value, error) {
 
 	case reflect.String:
 		return rv.String(), nil
+
+	case reflect.Struct:
+		if t, ok := v.(time.Time); ok {
+			return t, nil
+		}
+		return nil, fmt.Errorf("unsupported struct type: %s", rv.Type())
 
 	default:
 		return nil, fmt.Errorf("unsupported type: %T", v)
