@@ -518,6 +518,8 @@ type customValuer struct {
 	err   error
 }
 
+type unknowType interface{}
+
 func (cv customValuer) Value() (driver.Value, error) {
 	return cv.value, cv.err
 }
@@ -544,6 +546,7 @@ func TestConvertToDriverValue(t *testing.T) {
 		nilPtr           *int         = nil
 		valuerSuccess    customValuer = customValuer{value: "valuer value", err: nil}
 		valuerError      customValuer = customValuer{err: errors.New("valuer error")}
+		unknowTypeError  unknowType   = map[bool]bool{}
 		unsupportedSlice              = []int{1, 2, 3}
 	)
 
@@ -575,6 +578,7 @@ func TestConvertToDriverValue(t *testing.T) {
 		{"Uint64HighBitSet", uint64(1 << 63), nil, true}, // Uint64 with high bit set
 		{"ValuerInterfaceSuccess", valuerSuccess, "valuer value", false},
 		{"ValuerInterfaceError", valuerError, nil, true},
+		{"UnknowTypeError", unknowTypeError, nil, true},
 		{"UnsupportedSliceType", unsupportedSlice, nil, true},
 	}
 
