@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestNewNullable(t *testing.T) {
@@ -613,4 +614,32 @@ func TestNullableValue_Uint32(t *testing.T) {
 	if int64(uint32Val) != convertedValue.(int64) {
 		t.Errorf("Nullable[uint32].Value() returned %v, want %v", convertedValue, uint32Val)
 	}
+}
+
+func Test_IsZero(t *testing.T) {
+	type Foo struct {
+		ID   Nullable[int64]  `json:"id,omitempty"`
+		Name Nullable[string] `json:"name,omitempty"`
+	}
+
+	foo1 := &Foo{}
+	err := json.Unmarshal([]byte("{\"id\":0}"), foo1)
+	require.NoError(t, err)
+	assert.True(t, foo1.ID.Present)        // the value was passed
+	assert.True(t, foo1.ID.Valid)          // the value was passed, the value is valid (0 is valid)
+	assert.Equal(t, int64(0), foo1.ID.Val) // the value was passed, the value is valid
+	assert.False(t, foo1.ID.IsZero())      // the value is not "zero"
+	assert.False(t, foo1.Name.Present)     // name is not present
+	assert.True(t, foo1.Name.IsZero())     // name is "zero" and will not be marshaled (Note, it needs go >= 1.24)
+
+	foo2 := &Foo{}
+	err = json.Unmarshal([]byte("{\"id\":null,\"name\":\"foo\"}"), foo2)
+	require.NoError(t, err)
+	assert.True(t, foo2.ID.Present)       // the value was passed
+	assert.False(t, foo2.ID.Valid)        // the value was passed, but it null, invalid (unset)
+	assert.False(t, foo1.ID.IsZero())     // the value is not "zero"
+	assert.True(t, foo2.Name.Present)     // the value was passed
+	assert.True(t, foo2.Name.Valid)       // the value was passed
+	assert.Equal(t, "foo", foo2.Name.Val) // the value was passed, the value is valid
+	assert.False(t, foo1.ID.IsZero())     // the value is not "zero"
 }
