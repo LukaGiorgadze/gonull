@@ -198,3 +198,9 @@ func convertToType[T any](value any) (T, error) {
 
 	return zero, ErrUnsupportedConversion
 }
+
+// IsZero implements the json.Zeroed interface for Nullable, enabling it to be used as a nullable field in JSON operations.
+// This method ensures proper marshalling of Nullable values into JSON data, representing unset values as null in the serialized output.
+func (n Nullable[T]) IsZero() bool {
+	return !n.Present
+}
