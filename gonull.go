@@ -190,6 +190,16 @@ func convertToType[T any](value any) (T, error) {
 		return kind >= reflect.Int && kind <= reflect.Float64
 	}
 
+	if targetType.Kind() == reflect.String && valueType.Kind() == reflect.Slice && valueType.Elem().Kind() == reflect.Uint8 {
+		convertedValue := reflect.ValueOf(value).Convert(targetType)
+		val, ok := convertedValue.Interface().(T)
+		if !ok {
+			return zero, ErrUnsupportedConversion
+		}
+
+		return val, nil
+	}
+
 	// Check if the value is a numeric type and if T is also a numeric type.
 	if isNumeric(valueType.Kind()) && isNumeric(targetType.Kind()) {
 		convertedValue := reflect.ValueOf(value).Convert(targetType)

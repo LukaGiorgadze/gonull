@@ -28,29 +28,52 @@ type NullableInt struct {
 
 func TestNullableScan(t *testing.T) {
 	tests := []struct {
-		name    string
-		value   any
-		Valid   bool
-		Present bool
-		wantErr bool
+		name            string
+		value, expected any
+		Valid           bool
+		Present         bool
+		wantErr         bool
 	}{
 		{
-			name:    "nil value",
-			value:   nil,
-			Valid:   false,
-			Present: true,
+			name:     "nil value",
+			value:    nil,
+			expected: nil,
+			Valid:    false,
+			Present:  true,
 		},
 		{
-			name:    "string value",
-			value:   "test",
-			Valid:   true,
-			Present: true,
+			name:     "string value",
+			value:    "test",
+			expected: "test",
+			Valid:    true,
+			Present:  true,
+		},
+		{
+			name:     "[]byte type",
+			value:    []byte{116, 101, 115, 116},
+			expected: "test",
+			Valid:    true,
+			Present:  true,
+		},
+		{
+			name:     "[]uint8 type",
+			value:    []byte{116, 101, 115, 116},
+			expected: "test",
+			Valid:    true,
+			Present:  true,
 		},
 		{
 			name:    "unsupported type",
-			value:   []byte{1, 2, 3},
+			value:   []int64{1, 2, 3},
 			wantErr: true,
 			Present: true,
+		},
+		{
+			name:     "empty []uint8 type",
+			value:    []byte{},
+			expected: "",
+			Valid:    true,
+			Present:  true,
 		},
 	}
 
@@ -66,7 +89,7 @@ func TestNullableScan(t *testing.T) {
 				assert.Equal(t, tt.Valid, n.Valid)
 				assert.Equal(t, tt.Present, n.Present)
 				if tt.Valid {
-					assert.Equal(t, tt.value, n.Val)
+					assert.Equal(t, tt.expected, n.Val)
 				}
 			}
 		})
