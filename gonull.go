@@ -190,7 +190,10 @@ func convertToType[T any](value any) (T, error) {
 		return kind >= reflect.Int && kind <= reflect.Float64
 	}
 
-	if targetType.Kind() == reflect.String && valueType.Kind() == reflect.Slice && valueType.Elem().Kind() == reflect.Uint8 {
+	isStringConvertible := targetType.Kind() == reflect.String && valueType.Kind() == reflect.Slice && valueType.Elem().Kind() == reflect.Uint8
+	isNumericConvertible := isNumeric(valueType.Kind()) && isNumeric(targetType.Kind())
+
+	if isStringConvertible || isNumericConvertible {
 		convertedValue := reflect.ValueOf(value).Convert(targetType)
 		val, ok := convertedValue.Interface().(T)
 		if !ok {
@@ -200,10 +203,14 @@ func convertToType[T any](value any) (T, error) {
 		return val, nil
 	}
 
-	// Check if the value is a numeric type and if T is also a numeric type.
-	if isNumeric(valueType.Kind()) && isNumeric(targetType.Kind()) {
-		convertedValue := reflect.ValueOf(value).Convert(targetType)
-		return convertedValue.Interface().(T), nil
+	if isNumeric(valueType.Kind()) && targetType.Kind() == reflect.Bool {
+		convertedValue := reflect.ValueOf(value).Convert(reflect.TypeOf(1))
+		val, ok := convertedValue.Interface().(int)
+		if !ok || val < 0 || val > 1 {
+			return zero, ErrUnsupportedConversion
+		}
+
+		return reflect.ValueOf(val == 1).Interface().(T), nil
 	}
 
 	return zero, ErrUnsupportedConversion

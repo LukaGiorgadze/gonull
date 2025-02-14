@@ -26,7 +26,7 @@ type NullableInt struct {
 	Null bool
 }
 
-func TestNullableScan(t *testing.T) {
+func TestNullableScan_String(t *testing.T) {
 	tests := []struct {
 		name            string
 		value, expected any
@@ -80,6 +80,62 @@ func TestNullableScan(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			var n Nullable[string]
+			err := n.Scan(tt.value)
+
+			if tt.wantErr {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+				assert.Equal(t, tt.Valid, n.Valid)
+				assert.Equal(t, tt.Present, n.Present)
+				if tt.Valid {
+					assert.Equal(t, tt.expected, n.Val)
+				}
+			}
+		})
+	}
+}
+
+func TestNullableScan_Bool(t *testing.T) {
+	tests := []struct {
+		name            string
+		value, expected any
+		Valid           bool
+		Present         bool
+		wantErr         bool
+	}{
+		{
+			name:     "bool type",
+			value:    true,
+			expected: true,
+			Valid:    true,
+			Present:  true,
+		},
+		{
+			name:     "int64 true type",
+			value:    int64(1),
+			expected: true,
+			Valid:    true,
+			Present:  true,
+		},
+		{
+			name:     "int64 false type",
+			value:    int64(0),
+			expected: false,
+			Valid:    true,
+			Present:  true,
+		},
+		{
+			name:    "unsupported type",
+			value:   int64(100),
+			wantErr: true,
+			Present: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var n Nullable[bool]
 			err := n.Scan(tt.value)
 
 			if tt.wantErr {
