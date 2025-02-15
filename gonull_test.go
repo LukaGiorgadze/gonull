@@ -697,8 +697,9 @@ func TestNullableValue_Uint32(t *testing.T) {
 
 func Test_IsZero(t *testing.T) {
 	type Foo struct {
-		ID   Nullable[int64]  `json:"id,omitempty"`
-		Name Nullable[string] `json:"name,omitempty"`
+		ID     Nullable[int64]  `json:"id,omitempty"`
+		Name   Nullable[string] `json:"name,omitempty"`
+		IsZero Nullable[bool]   `json:"is_zero,omitzero"`
 	}
 
 	foo1 := &Foo{}
@@ -710,6 +711,8 @@ func Test_IsZero(t *testing.T) {
 	assert.False(t, foo1.ID.IsZero())      // the value is not "zero"
 	assert.False(t, foo1.Name.Present)     // name is not present
 	assert.True(t, foo1.Name.IsZero())     // name is "zero" and will not be marshaled (Note, it needs go >= 1.24)
+	hasZero, _ := json.Marshal(foo1)
+	assert.Equal(t, `{"id":0,"name":null}`, string(hasZero))
 
 	foo2 := &Foo{}
 	err = json.Unmarshal([]byte("{\"id\":null,\"name\":\"foo\"}"), foo2)
@@ -721,4 +724,5 @@ func Test_IsZero(t *testing.T) {
 	assert.True(t, foo2.Name.Valid)       // the value was passed
 	assert.Equal(t, "foo", foo2.Name.Val) // the value was passed, the value is valid
 	assert.False(t, foo1.ID.IsZero())     // the value is not "zero"
+
 }
