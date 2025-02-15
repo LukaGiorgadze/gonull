@@ -1,6 +1,6 @@
 # Go Nullable with Generics
 
-[![PkgGoDev](https://pkg.go.dev/badge/github.com/LukaGiorgadze/gonull)](https://pkg.go.dev/github.com/LukaGiorgadze/gonull) ![go-mod-verify](https://github.com/LukaGiorgadze/gonull/workflows/go-mod-verify/badge.svg) ![go-vuln](https://github.com/LukaGiorgadze/gonull/workflows/go-vuln/badge.svg) ![golangci-lint](https://github.com/LukaGiorgadze/gonull/workflows/go-lint/badge.svg) [![codecov](https://codecov.io/gh/LukaGiorgadze/gonull/branch/main/graph/badge.svg?token=76089e7b-f137-4459-8eae-4b48007bd0d6)](https://codecov.io/gh/LukaGiorgadze/gonull)
+[![PkgGoDev](https://pkg.go.dev/badge/github.com/LukaGiorgadze/gonull)](https://pkg.go.dev/github.com/LukaGiorgadze/gonull) ![go-mod-verify](https://github.com/LukaGiorgadze/gonull/workflows/Go%20mod/badge.svg) ![go-vuln](https://github.com/LukaGiorgadze/gonull/workflows/Security/badge.svg) ![golangci-lint](https://github.com/LukaGiorgadze/gonull/workflows/Linter/badge.svg) [![codecov](https://codecov.io/gh/LukaGiorgadze/gonull/branch/main/graph/badge.svg?token=76089e7b-f137-4459-8eae-4b48007bd0d6)](https://codecov.io/gh/LukaGiorgadze/gonull)
 
 ## Go package simplifies nullable fields handling with Go Generics.
 
@@ -9,11 +9,11 @@
 ## Features
 
 - 🎯 Type-safe nullable values using Go generics
+- 💡 Omitzero support
 - 🔄 Built-in JSON marshaling/unmarshaling
 - 📊 SQL database compatibility
 - ✨ Zero dependencies
 - 🚀 High performance
-- 💡 Intuitive API
 
 ## Usage
 
