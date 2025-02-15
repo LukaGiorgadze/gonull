@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestNewNullable(t *testing.T) {
@@ -25,31 +26,54 @@ type NullableInt struct {
 	Null bool
 }
 
-func TestNullableScan(t *testing.T) {
+func TestNullableScan_String(t *testing.T) {
 	tests := []struct {
-		name    string
-		value   any
-		Valid   bool
-		Present bool
-		wantErr bool
+		name            string
+		value, expected any
+		Valid           bool
+		Present         bool
+		wantErr         bool
 	}{
 		{
-			name:    "nil value",
-			value:   nil,
-			Valid:   false,
-			Present: true,
+			name:     "nil value",
+			value:    nil,
+			expected: nil,
+			Valid:    false,
+			Present:  true,
 		},
 		{
-			name:    "string value",
-			value:   "test",
-			Valid:   true,
-			Present: true,
+			name:     "string value",
+			value:    "test",
+			expected: "test",
+			Valid:    true,
+			Present:  true,
+		},
+		{
+			name:     "[]byte type",
+			value:    []byte{116, 101, 115, 116},
+			expected: "test",
+			Valid:    true,
+			Present:  true,
+		},
+		{
+			name:     "[]uint8 type",
+			value:    []byte{116, 101, 115, 116},
+			expected: "test",
+			Valid:    true,
+			Present:  true,
 		},
 		{
 			name:    "unsupported type",
-			value:   []byte{1, 2, 3},
+			value:   []int64{1, 2, 3},
 			wantErr: true,
 			Present: true,
+		},
+		{
+			name:     "empty []uint8 type",
+			value:    []byte{},
+			expected: "",
+			Valid:    true,
+			Present:  true,
 		},
 	}
 
@@ -65,7 +89,63 @@ func TestNullableScan(t *testing.T) {
 				assert.Equal(t, tt.Valid, n.Valid)
 				assert.Equal(t, tt.Present, n.Present)
 				if tt.Valid {
-					assert.Equal(t, tt.value, n.Val)
+					assert.Equal(t, tt.expected, n.Val)
+				}
+			}
+		})
+	}
+}
+
+func TestNullableScan_Bool(t *testing.T) {
+	tests := []struct {
+		name            string
+		value, expected any
+		Valid           bool
+		Present         bool
+		wantErr         bool
+	}{
+		{
+			name:     "bool type",
+			value:    true,
+			expected: true,
+			Valid:    true,
+			Present:  true,
+		},
+		{
+			name:     "int64 true type",
+			value:    int64(1),
+			expected: true,
+			Valid:    true,
+			Present:  true,
+		},
+		{
+			name:     "int64 false type",
+			value:    int64(0),
+			expected: false,
+			Valid:    true,
+			Present:  true,
+		},
+		{
+			name:    "unsupported type",
+			value:   int64(100),
+			wantErr: true,
+			Present: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var n Nullable[bool]
+			err := n.Scan(tt.value)
+
+			if tt.wantErr {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+				assert.Equal(t, tt.Valid, n.Valid)
+				assert.Equal(t, tt.Present, n.Present)
+				if tt.Valid {
+					assert.Equal(t, tt.expected, n.Val)
 				}
 			}
 		})
@@ -613,4 +693,32 @@ func TestNullableValue_Uint32(t *testing.T) {
 	if int64(uint32Val) != convertedValue.(int64) {
 		t.Errorf("Nullable[uint32].Value() returned %v, want %v", convertedValue, uint32Val)
 	}
+}
+
+func Test_IsZero(t *testing.T) {
+	type Foo struct {
+		ID   Nullable[int64]  `json:"id,omitempty"`
+		Name Nullable[string] `json:"name,omitempty"`
+	}
+
+	foo1 := &Foo{}
+	err := json.Unmarshal([]byte("{\"id\":0}"), foo1)
+	require.NoError(t, err)
+	assert.True(t, foo1.ID.Present)        // the value was passed
+	assert.True(t, foo1.ID.Valid)          // the value was passed, the value is valid (0 is valid)
+	assert.Equal(t, int64(0), foo1.ID.Val) // the value was passed, the value is valid
+	assert.False(t, foo1.ID.IsZero())      // the value is not "zero"
+	assert.False(t, foo1.Name.Present)     // name is not present
+	assert.True(t, foo1.Name.IsZero())     // name is "zero" and will not be marshaled (Note, it needs go >= 1.24)
+
+	foo2 := &Foo{}
+	err = json.Unmarshal([]byte("{\"id\":null,\"name\":\"foo\"}"), foo2)
+	require.NoError(t, err)
+	assert.True(t, foo2.ID.Present)       // the value was passed
+	assert.False(t, foo2.ID.Valid)        // the value was passed, but it null, invalid (unset)
+	assert.False(t, foo1.ID.IsZero())     // the value is not "zero"
+	assert.True(t, foo2.Name.Present)     // the value was passed
+	assert.True(t, foo2.Name.Valid)       // the value was passed
+	assert.Equal(t, "foo", foo2.Name.Val) // the value was passed, the value is valid
+	assert.False(t, foo1.ID.IsZero())     // the value is not "zero"
 }

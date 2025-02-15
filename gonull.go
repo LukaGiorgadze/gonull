@@ -190,11 +190,34 @@ func convertToType[T any](value any) (T, error) {
 		return kind >= reflect.Int && kind <= reflect.Float64
 	}
 
-	// Check if the value is a numeric type and if T is also a numeric type.
-	if isNumeric(valueType.Kind()) && isNumeric(targetType.Kind()) {
+	isStringConvertible := targetType.Kind() == reflect.String && valueType.Kind() == reflect.Slice && valueType.Elem().Kind() == reflect.Uint8
+	isNumericConvertible := isNumeric(valueType.Kind()) && isNumeric(targetType.Kind())
+
+	if isStringConvertible || isNumericConvertible {
 		convertedValue := reflect.ValueOf(value).Convert(targetType)
-		return convertedValue.Interface().(T), nil
+		val, ok := convertedValue.Interface().(T)
+		if !ok {
+			return zero, ErrUnsupportedConversion
+		}
+
+		return val, nil
+	}
+
+	if isNumeric(valueType.Kind()) && targetType.Kind() == reflect.Bool {
+		convertedValue := reflect.ValueOf(value).Convert(reflect.TypeOf(1))
+		val, ok := convertedValue.Interface().(int)
+		if !ok || val < 0 || val > 1 {
+			return zero, ErrUnsupportedConversion
+		}
+
+		return reflect.ValueOf(val == 1).Interface().(T), nil
 	}
 
 	return zero, ErrUnsupportedConversion
+}
+
+// IsZero implements the json.Zeroed interface for Nullable, enabling it to be used as a nullable field in JSON operations.
+// This method ensures proper marshalling of Nullable values into JSON data, representing unset values as null in the serialized output.
+func (n Nullable[T]) IsZero() bool {
+	return !n.Present
 }
