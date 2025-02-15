@@ -100,7 +100,7 @@ func convertToDriverValue(v any) (driver.Value, error) {
 
 	case reflect.Uint64:
 		u64 := rv.Uint()
-		if u64 >= 1<<63 {
+		if u64 > math.MaxInt64 {
 			return nil, fmt.Errorf("uint64 value %d is too large for int64", u64)
 		}
 		return int64(u64), nil
