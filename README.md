@@ -4,15 +4,16 @@
 
 ## Go package simplifies nullable fields handling with Go Generics.
 
-Package gonull provides a generic `Nullable` type for handling nullable values in a convenient way.
-This is useful when working with databases and JSON, where nullable values are common.
-Unlike other nullable libraries, gonull leverages Go's generics feature, enabling it to work seamlessly with any data type, making it more versatile and efficient.
+`gonull` is a Go package that provides type-safe handling of nullable values using generics. It's designed to work seamlessly with JSON and SQL operations, making it perfect for web services and database interactions.
 
-## Why gonull
+## Features
 
-- Use of Go's generics allows for a single implementation that works with any data type.
-- Seamless integration with `database/sql` and JSON marshalling/unmarshalling.
-- Reduces boilerplate code and improves code readability.
+- 🎯 Type-safe nullable values using Go generics
+- 🔄 Built-in JSON marshaling/unmarshaling
+- 📊 SQL database compatibility
+- ✨ Zero dependencies
+- 🚀 High performance
+- 💡 Intuitive API
 
 ## Usage
 
@@ -36,14 +37,20 @@ type MyCustomInt int
 type MyCustomFloat32 float32
 
 type Person struct {
-    Name    string
-    Age     gonull.Nullable[MyCustomInt]
-    Address gonull.Nullable[string]
-    Height  gonull.Nullable[MyCustomFloat32]
+    Name     string                           `json:"name"`
+    Age      gonull.Nullable[MyCustomInt]     `json:"age"`
+    Address  gonull.Nullable[string]          `json:"address"`
+    Height   gonull.Nullable[MyCustomFloat32] `json:"height"`
 }
 
 func main() {
-    jsonData := []byte(`{"Name":"Alice","Age":15,"Address":null,"Height":null}`)
+    jsonData := []byte(`
+    {
+        "name": "Alice",
+        "age": 15,
+        "address": null,
+        "height": null
+    }`)
 
     var person Person
     err := json.Unmarshal(jsonData, &person)

@@ -16,6 +16,7 @@ type Person struct {
 	Address gonull.Nullable[string]          `json:"address"`
 	Height  gonull.Nullable[MyCustomFloat32] `json:"height"`
 	HasPet  gonull.Nullable[bool]            `json:"has_pet"`
+	IsZero  gonull.Nullable[bool]            `json:"is_zero"`
 }
 
 func Example() {
