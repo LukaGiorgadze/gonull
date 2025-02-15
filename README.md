@@ -41,6 +41,7 @@ type Person struct {
     Age      gonull.Nullable[MyCustomInt]     `json:"age"`
     Address  gonull.Nullable[string]          `json:"address"`
     Height   gonull.Nullable[MyCustomFloat32] `json:"height"`
+    IsZero   gonull.Nullable[bool]            `json:"is_zero,omitzero"` // This property will be omitted from the output if it is false.
 }
 
 func main() {
@@ -53,20 +54,17 @@ func main() {
     }`)
 
     var person Person
-    err := json.Unmarshal(jsonData, &person)
-    if err != nil {
-        panic(err)
-    }
+    json.Unmarshal(jsonData, &person)
     fmt.Printf("Unmarshalled Person: %+v\n", person)
 
-    marshalledData, err := json.Marshal(person)
-    if err != nil {
-        panic(err)
-    }
+    marshalledData, _ := json.Marshal(person)
     fmt.Printf("Marshalled JSON: %s\n", string(marshalledData))
+
+    // Output:
+    // Unmarshalled Person: {Name:Alice Age:15 Address: Height:0 IsZero:false}
+    // Marshalled JSON: {"name":"Alice","age":15,"address":null,"height":null}
+    // As you see, IsZero is not present in the output, because we used the omitzero tag introduced in go v1.24.
 }
-
-
 ```
 
 ### Database example
