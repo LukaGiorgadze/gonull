@@ -1,6 +1,6 @@
 # Go Nullable with Generics
 
-[![PkgGoDev](https://pkg.go.dev/badge/github.com/LukaGiorgadze/gonull)](https://pkg.go.dev/github.com/LukaGiorgadze/gonull) ![mod-verify](https://github.com/LukaGiorgadze/gonull/workflows/mod-verify/badge.svg) ![golangci-lint](https://github.com/LukaGiorgadze/gonull/workflows/golangci-lint/badge.svg) ![staticcheck](https://github.com/LukaGiorgadze/gonull/workflows/staticcheck/badge.svg) ![gosec](https://github.com/LukaGiorgadze/gonull/workflows/gosec/badge.svg) [![codecov](https://codecov.io/gh/LukaGiorgadze/gonull/branch/main/graph/badge.svg?token=76089e7b-f137-4459-8eae-4b48007bd0d6)](https://codecov.io/gh/LukaGiorgadze/gonull)
+[![PkgGoDev](https://pkg.go.dev/badge/github.com/LukaGiorgadze/gonull)](https://pkg.go.dev/github.com/LukaGiorgadze/gonull) ![go-mod-verify](https://github.com/LukaGiorgadze/gonull/workflows/go-mod-verify/badge.svg) ![golangci-lint](https://github.com/LukaGiorgadze/gonull/workflows/go-lint/badge.svg) [![codecov](https://codecov.io/gh/LukaGiorgadze/gonull/branch/main/graph/badge.svg?token=76089e7b-f137-4459-8eae-4b48007bd0d6)](https://codecov.io/gh/LukaGiorgadze/gonull)
 
 ## Go package simplifies nullable fields handling with Go Generics.
 
@@ -41,7 +41,7 @@ type Person struct {
     Age      gonull.Nullable[MyCustomInt]     `json:"age"`
     Address  gonull.Nullable[string]          `json:"address"`
     Height   gonull.Nullable[MyCustomFloat32] `json:"height"`
-    IsZero   gonull.Nullable[bool]            `json:"is_zero,omitzero"` // This property will be omitted from the output if it is false.
+    IsZero   gonull.Nullable[bool]            `json:"is_zero,omitzero"` // This property will be omitted from the output since it's not present in jsonData.
 }
 
 func main() {
