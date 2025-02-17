@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"math"
 	"reflect"
+	"strconv"
 	"time"
 )
 
@@ -195,7 +196,9 @@ func convertToType[T any](value any) (T, error) {
 		return kind >= reflect.Int && kind <= reflect.Float64
 	}
 
+	// if the expected is a string, sometimes the content comes as []byte or []uint8, conversion is possible
 	isStringConvertible := targetType.Kind() == reflect.String && valueType.Kind() == reflect.Slice && valueType.Elem().Kind() == reflect.Uint8
+	// if the expected is numeric, and both types are numeric no matter the type, the conversion is possible
 	isNumericConvertible := isNumeric(valueType.Kind()) && isNumeric(targetType.Kind())
 
 	if isStringConvertible || isNumericConvertible {
@@ -208,6 +211,7 @@ func convertToType[T any](value any) (T, error) {
 		return val, nil
 	}
 
+	// a fallback for boolean cases, if a boolean is expected, it can come as numeric types, try to convert
 	if isNumeric(valueType.Kind()) && targetType.Kind() == reflect.Bool {
 		convertedValue := reflect.ValueOf(value).Convert(reflect.TypeOf(1))
 		val, ok := convertedValue.Interface().(int)
@@ -216,6 +220,25 @@ func convertToType[T any](value any) (T, error) {
 		}
 
 		return reflect.ValueOf(val == 1).Interface().(T), nil
+	}
+
+	// a fallback for float cases, if a float is expected, it can come as []byte or []uint8, try to convert
+	if (targetType.Kind() == reflect.Float32 || targetType.Kind() == reflect.Float64) && valueType.Kind() == reflect.Slice && valueType.Elem().Kind() == reflect.Uint8 {
+		convertedValue := reflect.ValueOf(value).Convert(reflect.TypeOf(""))
+		val, ok := convertedValue.Interface().(string)
+		if !ok || val == "" {
+			return zero, ErrUnsupportedConversion
+		}
+
+		valFloat, err := strconv.ParseFloat(val, targetType.Bits())
+		if err != nil {
+			return zero, ErrUnsupportedConversion
+		}
+
+		if targetType.Kind() == reflect.Float32 {
+			return reflect.ValueOf(float32(valFloat)).Interface().(T), nil
+		}
+		return reflect.ValueOf(valFloat).Interface().(T), nil
 	}
 
 	return zero, ErrUnsupportedConversion
