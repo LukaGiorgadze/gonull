@@ -13,7 +13,6 @@
 - 🔄 Built-in JSON marshaling/unmarshaling
 - 📊 SQL database compatibility
 - ✨ Zero dependencies
-- 🚀 High performance
 
 ## Usage
 
