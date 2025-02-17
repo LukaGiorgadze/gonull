@@ -182,6 +182,18 @@ func TestNullableScan_Float(t *testing.T) {
 			Present:  true,
 		},
 		{
+			name:    "[]uint8|[]byte type empty",
+			value:   []byte{},
+			wantErr: true,
+			Present: true,
+		},
+		{
+			name:    "[]uint8|[]byte type non numbers",
+			value:   []byte{1, 2, 3},
+			wantErr: true,
+			Present: true,
+		},
+		{
 			name:    "unsupported type",
 			value:   []int64{48, 46, 50, 53},
 			wantErr: true,
