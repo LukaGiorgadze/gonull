@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"math"
 	"reflect"
 	"strconv"
 	"time"
@@ -92,12 +93,16 @@ func convertToDriverValue(v any) (driver.Value, error) {
 		return rv.Int(), nil
 
 	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32:
-		return int64(rv.Uint()), nil
+		u := rv.Uint()
+		if u > math.MaxInt64 {
+			return nil, fmt.Errorf("unsigned integer value %d is too large for int64", u)
+		}
+		return int64(u), nil
 
 	case reflect.Uint64:
 		u64 := rv.Uint()
-		if u64 >= 1<<63 {
-			return nil, fmt.Errorf("uint64 values with high bit set are not supported")
+		if u64 > math.MaxInt64 {
+			return nil, fmt.Errorf("uint64 value %d is too large for int64", u64)
 		}
 		return int64(u64), nil
 

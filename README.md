@@ -1,18 +1,19 @@
 # Go Nullable with Generics
 
-[![PkgGoDev](https://pkg.go.dev/badge/github.com/LukaGiorgadze/gonull)](https://pkg.go.dev/github.com/LukaGiorgadze/gonull) ![mod-verify](https://github.com/LukaGiorgadze/gonull/workflows/mod-verify/badge.svg) ![golangci-lint](https://github.com/LukaGiorgadze/gonull/workflows/golangci-lint/badge.svg) ![staticcheck](https://github.com/LukaGiorgadze/gonull/workflows/staticcheck/badge.svg) ![gosec](https://github.com/LukaGiorgadze/gonull/workflows/gosec/badge.svg) [![codecov](https://codecov.io/gh/LukaGiorgadze/gonull/branch/main/graph/badge.svg?token=76089e7b-f137-4459-8eae-4b48007bd0d6)](https://codecov.io/gh/LukaGiorgadze/gonull)
+[![PkgGoDev](https://pkg.go.dev/badge/github.com/LukaGiorgadze/gonull)](https://pkg.go.dev/github.com/LukaGiorgadze/gonull) ![go-mod-verify](https://github.com/LukaGiorgadze/gonull/workflows/Go%20mod/badge.svg) ![go-vuln](https://github.com/LukaGiorgadze/gonull/workflows/Security/badge.svg) ![golangci-lint](https://github.com/LukaGiorgadze/gonull/workflows/Linter/badge.svg) [![codecov](https://codecov.io/gh/LukaGiorgadze/gonull/branch/main/graph/badge.svg?token=76089e7b-f137-4459-8eae-4b48007bd0d6)](https://codecov.io/gh/LukaGiorgadze/gonull)
 
 ## Go package simplifies nullable fields handling with Go Generics.
 
-Package gonull provides a generic `Nullable` type for handling nullable values in a convenient way.
-This is useful when working with databases and JSON, where nullable values are common.
-Unlike other nullable libraries, gonull leverages Go's generics feature, enabling it to work seamlessly with any data type, making it more versatile and efficient.
+`gonull` is a Go package that provides type-safe handling of nullable values using generics. It's designed to work seamlessly with JSON and SQL operations, making it perfect for web services and database interactions.
 
-## Why gonull
+## Features
 
-- Use of Go's generics allows for a single implementation that works with any data type.
-- Seamless integration with `database/sql` and JSON marshalling/unmarshalling.
-- Reduces boilerplate code and improves code readability.
+- 🎯 Type-safe nullable values using Go generics
+- 💡 Omitzero support
+- 🔄 Built-in JSON marshaling/unmarshaling
+- 📊 SQL database compatibility
+- ✨ Zero dependencies
+- 🚀 High performance
 
 ## Usage
 
@@ -36,30 +37,34 @@ type MyCustomInt int
 type MyCustomFloat32 float32
 
 type Person struct {
-    Name    string
-    Age     gonull.Nullable[MyCustomInt]
-    Address gonull.Nullable[string]
-    Height  gonull.Nullable[MyCustomFloat32]
+    Name     string                           `json:"name"`
+    Age      gonull.Nullable[MyCustomInt]     `json:"age"`
+    Address  gonull.Nullable[string]          `json:"address"`
+    Height   gonull.Nullable[MyCustomFloat32] `json:"height"`
+    IsZero   gonull.Nullable[bool]            `json:"is_zero,omitzero"` // This property will be omitted from the output since it's not present in jsonData.
 }
 
 func main() {
-    jsonData := []byte(`{"Name":"Alice","Age":15,"Address":null,"Height":null}`)
+    jsonData := []byte(`
+    {
+        "name": "Alice",
+        "age": 15,
+        "address": null,
+        "height": null
+    }`)
 
     var person Person
-    err := json.Unmarshal(jsonData, &person)
-    if err != nil {
-        panic(err)
-    }
+    json.Unmarshal(jsonData, &person)
     fmt.Printf("Unmarshalled Person: %+v\n", person)
 
-    marshalledData, err := json.Marshal(person)
-    if err != nil {
-        panic(err)
-    }
+    marshalledData, _ := json.Marshal(person)
     fmt.Printf("Marshalled JSON: %s\n", string(marshalledData))
+
+    // Output:
+    // Unmarshalled Person: {Name:Alice Age:15 Address: Height:0 IsZero:false}
+    // Marshalled JSON: {"name":"Alice","age":15,"address":null,"height":null}
+    // As you see, IsZero is not present in the output, because we used the omitzero tag introduced in go v1.24.
 }
-
-
 ```
 
 ### Database example
