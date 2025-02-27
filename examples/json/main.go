@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/LukaGiorgadze/gonull"
+	"github.com/LukaGiorgadze/gonull/v2"
 )
 
 type MyCustomInt int

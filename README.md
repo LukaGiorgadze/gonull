@@ -17,7 +17,7 @@
 ## Usage
 
 ```bash
-go get github.com/LukaGiorgadze/gonull
+go get github.com/LukaGiorgadze/gonull/v2
 ```
 
 ### Example

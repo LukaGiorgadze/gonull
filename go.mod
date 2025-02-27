@@ -1,4 +1,4 @@
-module github.com/LukaGiorgadze/gonull
+module github.com/LukaGiorgadze/gonull/v2
 
 go 1.24
 
