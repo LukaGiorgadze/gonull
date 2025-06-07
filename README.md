@@ -12,6 +12,7 @@
 - 💡 Omitzero support
 - 🔄 Built-in JSON marshaling/unmarshaling
 - 📊 SQL database compatibility
+- 🔢 Handles numeric values returned as strings by SQL drivers
 - ✨ Zero dependencies
 
 ## Usage
