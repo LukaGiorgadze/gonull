@@ -175,6 +175,13 @@ func TestNullableScan_Float(t *testing.T) {
 			Present:  true,
 		},
 		{
+			name:     "string type",
+			value:    "0.25",
+			expected: float32(0.25),
+			Valid:    true,
+			Present:  true,
+		},
+		{
 			name:     "[]uint8|[]byte type",
 			value:    []byte{48, 46, 50, 53},
 			expected: float32(0.25),
@@ -817,11 +824,24 @@ func TestNullableScan_Float64(t *testing.T) {
 			Present:  true,
 		},
 		{
+			name:     "string type",
+			value:    "0.25",
+			expected: float64(0.25),
+			Valid:    true,
+			Present:  true,
+		},
+		{
 			name:     "[]uint8|[]byte type",
 			value:    []byte("0.25"),
 			expected: float64(0.25),
 			Valid:    true,
 			Present:  true,
+		},
+		{
+			name:    "invalid string",
+			value:   "foo",
+			wantErr: true,
+			Present: true,
 		},
 		{
 			name:    "[]uint8|[]byte type empty",
@@ -857,6 +877,64 @@ func TestNullableScan_Float64(t *testing.T) {
 				if tt.Valid {
 					assert.Equal(t, tt.expected, n.Val)
 				}
+			}
+		})
+	}
+}
+
+func TestNullableScan_IntFromString(t *testing.T) {
+	tests := []struct {
+		name    string
+		value   any
+		want    int
+		wantErr bool
+	}{
+		{name: "valid string", value: "42", want: 42},
+		{name: "invalid string", value: "foo", wantErr: true},
+		{name: "empty string", value: "", wantErr: true},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var n Nullable[int]
+			err := n.Scan(tt.value)
+
+			if tt.wantErr {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+				assert.True(t, n.Valid)
+				assert.True(t, n.Present)
+				assert.Equal(t, tt.want, n.Val)
+			}
+		})
+	}
+}
+
+func TestNullableScan_UintFromString(t *testing.T) {
+	tests := []struct {
+		name    string
+		value   any
+		want    uint
+		wantErr bool
+	}{
+		{name: "valid string", value: "42", want: 42},
+		{name: "invalid string", value: "bar", wantErr: true},
+		{name: "empty string", value: "", wantErr: true},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var n Nullable[uint]
+			err := n.Scan(tt.value)
+
+			if tt.wantErr {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+				assert.True(t, n.Valid)
+				assert.True(t, n.Present)
+				assert.Equal(t, tt.want, n.Val)
 			}
 		})
 	}

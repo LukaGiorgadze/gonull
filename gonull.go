@@ -211,6 +211,38 @@ func convertToType[T any](value any) (T, error) {
 		return val, nil
 	}
 
+	// a fallback for numeric values that come as strings (e.g. PostgreSQL numeric types)
+	if valueType.Kind() == reflect.String && isNumeric(targetType.Kind()) {
+		strVal := value.(string)
+		if strVal == "" {
+			return zero, ErrUnsupportedConversion
+		}
+
+		switch targetType.Kind() {
+		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+			parsed, err := strconv.ParseInt(strVal, 10, int(targetType.Bits()))
+			if err != nil {
+				return zero, ErrUnsupportedConversion
+			}
+			return reflect.ValueOf(parsed).Convert(targetType).Interface().(T), nil
+		case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+			parsed, err := strconv.ParseUint(strVal, 10, int(targetType.Bits()))
+			if err != nil {
+				return zero, ErrUnsupportedConversion
+			}
+			return reflect.ValueOf(parsed).Convert(targetType).Interface().(T), nil
+		case reflect.Float32, reflect.Float64:
+			parsed, err := strconv.ParseFloat(strVal, targetType.Bits())
+			if err != nil {
+				return zero, ErrUnsupportedConversion
+			}
+			if targetType.Kind() == reflect.Float32 {
+				return reflect.ValueOf(float32(parsed)).Interface().(T), nil
+			}
+			return reflect.ValueOf(parsed).Interface().(T), nil
+		}
+	}
+
 	// a fallback for boolean cases, if a boolean is expected, it can come as numeric types, try to convert
 	if isNumeric(valueType.Kind()) && targetType.Kind() == reflect.Bool {
 		convertedValue := reflect.ValueOf(value).Convert(reflect.TypeOf(1))

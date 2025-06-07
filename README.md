@@ -8,11 +8,28 @@
 
 ## Features
 
-- 🎯 Type-safe nullable values using Go generics
+- 🎯 One generic `Nullable[T]` works with **any** type
 - 💡 Omitzero support
 - 🔄 Built-in JSON marshaling/unmarshaling
 - 📊 SQL database compatibility
+- 🔢 Handles numeric values returned as strings by SQL drivers
+- 🧩 Works seamlessly with your own alias or enum types
 - ✨ Zero dependencies
+
+### Why gonull?
+
+`Nullable[T]` keeps your code concise by using Go generics for any type. You don't need separate wrappers for strings, ints or custom enumerations. Built-in `sql.Scanner` and `json` support make it easy to integrate with databases and APIs.
+
+```go
+type Status string
+
+type Task struct {
+    ID    int
+    State gonull.Nullable[Status]
+}
+```
+
+---
 
 ## Usage
 
@@ -20,7 +37,7 @@
 go get github.com/LukaGiorgadze/gonull/v2
 ```
 
-### Example
+### Example #1
 
 ```go
 package main
@@ -66,7 +83,7 @@ func main() {
 }
 ```
 
-### Database example
+### Example #2
 
 ```go
 type User struct {
@@ -93,3 +110,14 @@ func main() {
     // ...
 }
 ```
+
+### Explore More Examples
+See [./examples](./examples) directory.
+
+## Contribution
+
+<a href="https://github.com/LukaGiorgadze/gonull/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=LukaGiorgadze/gonull" />
+</a>
+
+Made with [contrib.rocks](https://contrib.rocks).
