@@ -8,7 +8,7 @@
 
 ## Features
 
-- 🎯 One generic `Nullable[T]` works with any type
+- 🎯 One generic `Nullable[T]` works with **any** type
 - 💡 Omitzero support
 - 🔄 Built-in JSON marshaling/unmarshaling
 - 📊 SQL database compatibility
