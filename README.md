@@ -1,3 +1,34 @@
+
+<div align="right">
+  <details>
+    <summary >🌐 Language</summary>
+    <div>
+      <div align="center">
+        <a href="https://openaitx.github.io/view.html?user=LukaGiorgadze&project=gonull&lang=en">English</a>
+        | <a href="https://openaitx.github.io/view.html?user=LukaGiorgadze&project=gonull&lang=zh-CN">简体中文</a>
+        | <a href="https://openaitx.github.io/view.html?user=LukaGiorgadze&project=gonull&lang=zh-TW">繁體中文</a>
+        | <a href="https://openaitx.github.io/view.html?user=LukaGiorgadze&project=gonull&lang=ja">日本語</a>
+        | <a href="https://openaitx.github.io/view.html?user=LukaGiorgadze&project=gonull&lang=ko">한국어</a>
+        | <a href="https://openaitx.github.io/view.html?user=LukaGiorgadze&project=gonull&lang=hi">हिन्दी</a>
+        | <a href="https://openaitx.github.io/view.html?user=LukaGiorgadze&project=gonull&lang=th">ไทย</a>
+        | <a href="https://openaitx.github.io/view.html?user=LukaGiorgadze&project=gonull&lang=fr">Français</a>
+        | <a href="https://openaitx.github.io/view.html?user=LukaGiorgadze&project=gonull&lang=de">Deutsch</a>
+        | <a href="https://openaitx.github.io/view.html?user=LukaGiorgadze&project=gonull&lang=es">Español</a>
+        | <a href="https://openaitx.github.io/view.html?user=LukaGiorgadze&project=gonull&lang=it">Italiano</a>
+        | <a href="https://openaitx.github.io/view.html?user=LukaGiorgadze&project=gonull&lang=ru">Русский</a>
+        | <a href="https://openaitx.github.io/view.html?user=LukaGiorgadze&project=gonull&lang=pt">Português</a>
+        | <a href="https://openaitx.github.io/view.html?user=LukaGiorgadze&project=gonull&lang=nl">Nederlands</a>
+        | <a href="https://openaitx.github.io/view.html?user=LukaGiorgadze&project=gonull&lang=pl">Polski</a>
+        | <a href="https://openaitx.github.io/view.html?user=LukaGiorgadze&project=gonull&lang=ar">العربية</a>
+        | <a href="https://openaitx.github.io/view.html?user=LukaGiorgadze&project=gonull&lang=fa">فارسی</a>
+        | <a href="https://openaitx.github.io/view.html?user=LukaGiorgadze&project=gonull&lang=tr">Türkçe</a>
+        | <a href="https://openaitx.github.io/view.html?user=LukaGiorgadze&project=gonull&lang=vi">Tiếng Việt</a>
+        | <a href="https://openaitx.github.io/view.html?user=LukaGiorgadze&project=gonull&lang=id">Bahasa Indonesia</a>
+      </div>
+    </div>
+  </details>
+</div>
+
 # Go Nullable with Generics
 
 [![PkgGoDev](https://pkg.go.dev/badge/github.com/LukaGiorgadze/gonull)](https://pkg.go.dev/github.com/LukaGiorgadze/gonull) ![go-mod-verify](https://github.com/LukaGiorgadze/gonull/workflows/Go%20mod/badge.svg) ![go-vuln](https://github.com/LukaGiorgadze/gonull/workflows/Security/badge.svg) ![golangci-lint](https://github.com/LukaGiorgadze/gonull/workflows/Linter/badge.svg) [![codecov](https://codecov.io/gh/LukaGiorgadze/gonull/branch/main/graph/badge.svg?token=76089e7b-f137-4459-8eae-4b48007bd0d6)](https://codecov.io/gh/LukaGiorgadze/gonull) [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/LukaGiorgadze/gonull)
